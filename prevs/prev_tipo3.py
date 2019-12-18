@@ -236,15 +236,16 @@ def posto_285():
 ##MUDE O MÊS AQUI
 
 def posto_292(mes):
-    #Se 288(t) ≤ 1600m³/s     →   292(t) = 0
-    #Se 288(t) > 1600m³/s     →   
+    #Se 288(t) ≤ X/s     →   292(t) = 0
+    #Se 288(t) > X/s     →   
         #Se  288(t) ≤ (X+13900) m³/s    →    292(t) = 288(t) - X  m³/s   
         #Se 288(t) > (X+13900) m³/s → 292(t) = 13900  m³/s
     vazao_base = 0
+    mes = int(mes)
     vazao_posto_292 = vazao_posto(288)
     p288 = vazao_posto(288)
     for i in range(6):
-        if(p288.iloc[i] <= vazao_base): vazao_posto_292 = 0
+        if(p288.iloc[i] <= vazao_base): vazao_posto_292.iloc[i] = 0
         else:
             if (mes == 1): vazao_base = 1100
             elif (mes == 2): vazao_base = 1600
@@ -362,8 +363,8 @@ def posto_317():
 # %%
     
 
-def posto_302():
-    vazao_posto_302 = vazao_posto(288) - posto_292()
+def posto_302(mes):
+    vazao_posto_302 = vazao_posto(288) - posto_292(mes)
     return vazao_posto_302
 
     
