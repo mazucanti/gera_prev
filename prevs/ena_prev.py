@@ -33,7 +33,7 @@ def get_prod():
     prod = pd.read_csv(loc, index_col=0) 
     for i,row in prod.head(180).iterrows(): #For substitui as vírgulas por pontos
         row['prod'] = row['prod'].replace(",",".") # Se isso não for feito, o df age como se fosse string
-        row['prod'] = float(row['prod']) # Converte para float as strings
+        row['prod'] = float(row['prod']) # Converte as strings para float
     return prod
 
 
@@ -58,12 +58,12 @@ def calc_ena(mes):
 
     
 #Exporta o df para um arquivo xls
-def exporta_ena(nomes, *enas):
+def exporta_ena(indice, *enas):
     local = Path('saídas/ENA/ENA.xls')
     formato = [0,6,20]
     with pd.ExcelWriter(local) as writer:
         for i, ena in enumerate(enas):
-            ena.to_excel(writer, sheet_name = 'PREV', startrow = formato[i], startcol=0)
+            ena.to_excel(writer, sheet_name = 'PREV-'+str(indice), startrow = formato[i], startcol=0)
     
     
     

@@ -25,8 +25,7 @@ except:
 else:
     ena_submercado.sort_index(ascending = False, inplace = True)
     
-    ena.exporta_ena(['Submercado','REE','Bacias'],
-                    ena_submercado, ena_ree, ena_bacias)
+    ena.exporta_ena(0, ena_submercado, ena_ree, ena_bacias)
 
     print('ENA calculada com sucesso!')
     
