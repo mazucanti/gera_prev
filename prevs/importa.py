@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Mon Dec 16 12:39:59 2019
@@ -11,7 +11,8 @@ from pathlib import Path
 
 
 def importa_prev():
-    local = Path('entradas/prevs/Prevs_VE.prv') # Cria o caminho para o arquivo de prev
+    arquivos = Path('entradas/prevs').glob('**/*') # Cria o caminho para todos os prevs
+    files = [arquivo for arquivo in arquivos if arquivo.is_file()]
     #Importa o arquivo usando o separador como espaço, redefinindo o nome das colunas e ignorando os indices pré existentes usando os postos para isso
     prev = pd.read_csv(local, header=None, names = ['indice','posto','E1','E2','E3','E4','E5','E6'], index_col = 1, delim_whitespace=True)
     prev.drop(['indice'], axis=1, inplace=True) #Tira a coluna de índices do prev que é desnecessária
@@ -38,4 +39,3 @@ def arquivos():
     postos = importa_postos()
     return prev, a0, a1, postos
 
-    
