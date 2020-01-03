@@ -7,16 +7,32 @@ Created on Mon Dec 16 12:39:59 2019
 """
 
 import pandas as pd
+import datetime as dt
 from pathlib import Path
 
 
-def importa_prev():
-    arquivos = Path('entradas/prevs').glob('**/*') # Cria o caminho para todos os prevs
-    files = [arquivo for arquivo in arquivos if arquivo.is_file()]
-    #Importa o arquivo usando o separador como espaço, redefinindo o nome das colunas e ignorando os indices pré existentes usando os postos para isso
-    prev = pd.read_csv(local, header=None, names = ['indice','posto','E1','E2','E3','E4','E5','E6'], index_col = 1, delim_whitespace=True)
-    prev.drop(['indice'], axis=1, inplace=True) #Tira a coluna de índices do prev que é desnecessária
-    return prev
+def get_datas(ano,mes):
+    datas = [] #Vetor que armazenará as datas dos primeiros dias de todas as semanas operativas do prev
+    data_str = str(ano)+'-'+str(mes)+'-'+'01' #cria uma data_str para ser usada de referência para o começo do mês operativo
+    data = dt.datetime.strptime(data_str, '%Y-%m-%d') #Converte a string em um objeto datetime
+    no_semana = data.isoweekday() % 7 #Pega o dia da semana e o transofrma em inteiro pela operação mod
+    inicio = data - dt.timedelta(days = no_semana + 1) # Define o início da semana operativa pegando o sábado que aconteceu antes do primeiro dia do mês
+    for i in range(6): #Itera os seis estágios do prevs
+        datas.append(inicio + dt.timedelta(weeks = int(i))) #Adiciona em ordem crescente as datas no vetor
+    datas = ['indice', 'posto'] + datas #Adiciona elementos auxiliares para a criação do DF
+    return datas
+
+def importa_prevs(ano, mes):
+    arquivos = Path('entradas/prevs/'+str(ano)+'/'+str(mes)).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
+    prevs = [] #Vetor que armazenará todos os prevs de uma pasta
+    datas = get_datas(ano,mes)
+    files = [arquivo for arquivo in arquivos if arquivo.is_file()] #Organiza os arquivos válidos em um vetor
+    for i, file in files:
+        prevs.append(pd.read_csv(file, header=None, names = datas, index_col = 1, delim_whitespace=True))
+    #Importa cada arquivo usando o separador como espaço, redefinindo o nome das colunas e ignorando os indices pré existentes usando os postos para isso
+    for i, prev in enumerate(prevs): #itera todos os arquivos carregados
+        prevs[i] = prev.drop(['indice'], axis=1) #Tira a coluna de índices do prev que é desnecessária
+    return prevs
 
 
 def importa_a0_a1():
@@ -33,9 +49,22 @@ def importa_postos():
     return postos
     
 
-def arquivos():
-    prev = importa_prev()
+def arquivos(ano, mes):
+    prevs = importa_prevs(ano, mes)
     a0,a1 = importa_a0_a1()
     postos = importa_postos()
-    return prev, a0, a1, postos
+    return prevs, a0, a1, postos
+
+
+def get_nomes(ano,mes):
+    nomes = []
+    rv = []
+    arquivos = Path('../entradas/prevs/'+str(ano)+'/'+str(mes)).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
+    files = [arquivo for arquivo in arquivos if arquivo.is_file()] #Organiza os arquivos válidos em um vetor
+    for file in files:
+        nomes.append(file.stem)
+        rv.append(file.suffix)
+    return nomes, rv
+
+a, b = get_nomes(2019, 12)
 

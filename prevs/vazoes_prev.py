@@ -63,19 +63,21 @@ def regressao_tipo_3(mes):
 
 
 # Monta a tabela final de vazões
-def vazoes_finais(mes):
-    prev, a0, a1, postos = imp.arquivos() #Recebe os postos, vazões e coeficientes de regressão tipo 1
-    tipo0 = vazoes_tipo0(prev, postos) #Recebe as vazões dos postos tipo 0
-    # tipo1 = regressao_tipo_1(prev, a0, a1, postos, mes) #Recebe as vazoes dos postos tipo 1
-    vazoes = tipo0
-    # vazoes = pd.concat([tipo0,tipo1]) #Junta as vazoes tipo 1 e 0 em uma tabela
-    vazoes.sort_index(inplace = True) # Orgazina a tabela por ordem crescente de código de posto
-    vazoes.dropna(inplace=True) #Retira os postos que não têm vazão
-    local = Path('saídas/vazoes/vazões_para_tipo3.csv') #Cria o diretório para a tabela calculada
-    vazoes.to_csv(local) #Função que exporta para referência nas regressões de tipo 3
-    tipo3 = regressao_tipo_3(mes) #Recebe uma tabela com todas as vazões de postos tipo 3
-    vazoes = pd.concat([vazoes, tipo3],) #Adiciona os postos à tabela
-    vazoes.sort_index(inplace = True) #Organiza a tabela por ordem crescente de código de posto
+def vazoes_finais(mes, ano):
+    prevs, a0, a1, postos = imp.arquivos(ano, mes) #Recebe os postos, vazões e coeficientes de regressão tipo 1
+    vazoes = [None] * len(prevs) #Cria vetor de vazões tratadas e regredidas para cada prev
+    for i, prev in enumerate(prevs):
+        tipo0 = vazoes_tipo0(prev, postos) #Recebe as vazões dos postos tipo 0
+        # tipo1 = regressao_tipo_1(prev, a0, a1, postos, mes) #Recebe as vazoes dos postos tipo 1
+        vazoes[i] = tipo0
+        # vazoes[i] = pd.concat([tipo0,tipo1]) #Junta as vazoes tipo 1 e 0 em uma tabela
+        vazoes[i].sort_index(inplace = True) # Orgazina a tabela por ordem crescente de código de posto
+        vazoes[i].dropna(inplace=True) #Retira os postos que não têm vazão
+        local = Path('saídas/vazoes/vazões_para_tipo3.csv') #Cria o diretório para a tabela calculada
+        vazoes[i].to_csv(local) #Função que exporta para referência nas regressões de tipo 3
+        tipo3 = regressao_tipo_3(mes) #Recebe uma tabela com todas as vazões de postos tipo 3
+        vazoes[i] = pd.concat([vazoes[i], tipo3],) #Adiciona os postos à tabela
+        vazoes[i].sort_index(inplace = True) #Organiza a tabela por ordem crescente de código de posto
     return vazoes
 
 

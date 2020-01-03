@@ -12,9 +12,10 @@ from prevs import ena_prev as ena
 
 
 mes = input('Digite o mês do PREV a ser calculado: ')
+ano = input('Digite o ano do PREV a ser calculado: ')
 
 try:
-    ena_geral = ena.calc_ena(mes)
+    ena_geral = ena.calc_ena(mes, ano)
     ena_submercado = ena.ena_mercados(ena_geral)
     ena_bacias = ena.ena_bacia(ena_geral)
     ena_ree = ena.ena_ree(ena_geral)

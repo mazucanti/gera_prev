@@ -16,11 +16,13 @@ from pathlib import Path
 
 
 # Função cria o DataFrame (df) com as linhas e colunas apropriadas
-def cria_ena(mes):
-    vazoes = reg.vazoes_finais(mes) #Recebe as vazões regredidas 
-    ind = vazoes.head(200).index #Pega o número dos postos
-    col = vazoes.T.head(7).index #Pega os meses do arquivo
-    ena = pd.DataFrame(0, index = ind, columns = col) #Cria a tabela e a preenche com 0
+def cria_ena(mes, ano):
+    ena = []  #Vetor que armazenará a tabela de ENA relativa a cada PREV
+    vazoes = reg.vazoes_finais(mes, ano) #Recebe as vazões regredidas 
+    for vazao in vazoes: #Itera todas as vazões dos prevs carregados
+        ind = vazao.head(200).index #Pega o número dos postos
+        col = vazao.T.head(7).index #Pega os meses do arquivo
+        ena.append(pd.DataFrame(0, index = ind, columns = col)) #Cria a tabela e a preenche com 0
     return ena, vazoes
 
 
@@ -42,15 +44,16 @@ def get_prod():
     
 
 # Função transforma as vazões em energia
-def calc_ena(mes):
+def calc_ena(mes, ano):
     produtibilidades = get_prod() # Armazena todas as produtibilidades
-    ena, vazoes = cria_ena(mes) #armazena a tabela vazia e as vazões
-    for i in range(6): #For itera cada dia do mês
-        energia = vazoes.iloc[:,i].multiply(produtibilidades.iloc[:,0]) #Multiplica todas as vazões de postos com suas respectivas produtibilidades
-        ena.iloc[:,i] = energia # Atualiza a tabela de ENA com as ENAs calculadas
-    ena.fillna(0, inplace = True) # Troca os valores inválidos por 0
-    ena.index.rename('posto', inplace = True) # Troca o nome dos índices para "posto"
-    ena.sort_index(inplace=True) #Organiza os índices por ordem crescente
+    ena, vazoes = cria_ena(mes, ano) #armazena a tabela vazia e as vazões
+    for j in len(vazoes):
+        for i in range(6): #For itera cada dia do mês
+            energia = vazoes[j].iloc[:,i].multiply(produtibilidades.iloc[:,0]) #Multiplica todas as vazões de postos com suas respectivas produtibilidades
+            ena[j].iloc[:,i] = energia # Atualiza a tabela de ENA com as ENAs calculadas
+        ena[j].fillna(0, inplace = True) # Troca os valores inválidos por 0
+        ena[j].index.rename('posto', inplace = True) # Troca o nome dos índices para "posto"
+        ena[j].sort_index(inplace=True) #Organiza os índices por ordem crescente
     return ena
 
 
@@ -58,12 +61,13 @@ def calc_ena(mes):
 
     
 #Exporta o df para um arquivo xls
-def exporta_ena(indice, *enas):
+def exporta_ena(nomes, *enas):
     local = Path('saídas/ENA/ENA.xls')
     formato = [0,6,20]
     with pd.ExcelWriter(local) as writer:
         for i, ena in enumerate(enas):
-            ena.to_excel(writer, sheet_name = 'PREV-'+str(indice), startrow = formato[i], startcol=0)
+            for j, item in enumerate(ena):
+                item.to_excel(writer, sheet_name = nomes[j], startrow = formato[i], startcol=0)
     
     
     
