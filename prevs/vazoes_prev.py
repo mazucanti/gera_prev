@@ -76,7 +76,7 @@ def vazoes_finais(mes, ano):
         local = Path('saídas/vazoes/vazões_para_tipo3.csv') #Cria o diretório para a tabela calculada
         vazoes[i].to_csv(local) #Função que exporta para referência nas regressões de tipo 3
         tipo3 = regressao_tipo_3(mes) #Recebe uma tabela com todas as vazões de postos tipo 3
-        vazoes[i] = pd.concat([vazoes[i], tipo3],) #Adiciona os postos à tabela
+        vazoes[i] = pd.concat([vazoes[i], tipo3], sort=True) #Adiciona os postos à tabela
         vazoes[i].sort_index(inplace = True) #Organiza a tabela por ordem crescente de código de posto
     return vazoes
 

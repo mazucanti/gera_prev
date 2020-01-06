@@ -16,7 +16,10 @@ def get_datas(ano,mes):
     data_str = str(ano)+'-'+str(mes)+'-'+'01' #cria uma data_str para ser usada de referência para o começo do mês operativo
     data = dt.datetime.strptime(data_str, '%Y-%m-%d') #Converte a string em um objeto datetime
     no_semana = data.isoweekday() % 7 #Pega o dia da semana e o transofrma em inteiro pela operação mod
-    inicio = data - dt.timedelta(days = no_semana + 1) # Define o início da semana operativa pegando o sábado que aconteceu antes do primeiro dia do mês
+    if no_semana != 1:
+        inicio = data - dt.timedelta(days = no_semana + 1) # Define o início da semana operativa pegando o sábado que aconteceu antes do primeiro dia do mês
+    else:
+        inicio = data
     for i in range(6): #Itera os seis estágios do prevs
         datas.append(inicio + dt.timedelta(weeks = int(i))) #Adiciona em ordem crescente as datas no vetor
     datas = ['indice', 'posto'] + datas #Adiciona elementos auxiliares para a criação do DF
@@ -27,7 +30,7 @@ def importa_prevs(ano, mes):
     prevs = [] #Vetor que armazenará todos os prevs de uma pasta
     datas = get_datas(ano,mes)
     files = [arquivo for arquivo in arquivos if arquivo.is_file()] #Organiza os arquivos válidos em um vetor
-    for i, file in files:
+    for file in files:
         prevs.append(pd.read_csv(file, header=None, names = datas, index_col = 1, delim_whitespace=True))
     #Importa cada arquivo usando o separador como espaço, redefinindo o nome das colunas e ignorando os indices pré existentes usando os postos para isso
     for i, prev in enumerate(prevs): #itera todos os arquivos carregados
@@ -59,12 +62,13 @@ def arquivos(ano, mes):
 def get_nomes(ano,mes):
     nomes = []
     rv = []
-    arquivos = Path('../entradas/prevs/'+str(ano)+'/'+str(mes)).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
+    arquivos = Path('entradas/prevs/'+str(ano)+'/'+str(mes)).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
     files = [arquivo for arquivo in arquivos if arquivo.is_file()] #Organiza os arquivos válidos em um vetor
-    for file in files:
+    for i, file in enumerate(files):
         nomes.append(file.stem)
         rv.append(file.suffix)
+        rv[i] = rv[i].replace(".", "")
+        rv[i] = rv[i].upper()
     return nomes, rv
 
-a, b = get_nomes(2019, 12)
 
