@@ -7,19 +7,20 @@ Created on Tue Dec 17 12:46:20 2019
 """
 
 
-from prevs import ena_prev as ena
-from prevs import importa as imp
+from src import ena_prev as ena
+from src import importa as imp
 
 
 
-mes = 12 #input('Digite o mês do PREV a ser calculado: ')
-ano = 2019 #input('Digite o ano do PREV a ser calculado: ')
+mes = int(input('Digite o mês do PREV a ser calculado: '))
+ano = int(input('Digite o ano do PREV a ser calculado: '))
 
 try:
     ena_geral = ena.calc_ena(mes, ano)
-    ena_submercado = ena.ena_mercados(ena_geral)
-    ena_bacias = ena.ena_bacia(ena_geral)
-    ena_ree = ena.ena_ree(ena_geral)
+    postos = imp.importa_postos()
+    ena_submercado = ena.ena_mercados(ena_geral, postos)
+    ena_bacias = ena.ena_bacia(ena_geral, postos)
+    ena_ree = ena.ena_ree(ena_geral, postos)
 except FileNotFoundError:
     print("O arquivo de prev não foi encontrado!")
 except:
@@ -28,8 +29,9 @@ else:
     for i in range(len(ena_submercado)):
         ena_submercado[i].sort_index(ascending = False, inplace = True)
     nomes, rv = imp.get_nomes(ano, mes)
-    ena.exporta_ena(nomes, rv, ena_submercado, ena_ree, ena_bacias)
+    dias, total = ena.dias_semana(ano, mes)
+    medias, enas = ena.media_mes(dias, total, ena_submercado, ena_ree, ena_bacias)
+    ena.exporta_ena(ano, mes, nomes, rv, medias, enas)
 
     print('ENA calculada com sucesso!')
-
 

@@ -68,7 +68,19 @@ def get_nomes(ano,mes):
         nomes.append(file.stem)
         rv.append(file.suffix)
         rv[i] = rv[i].replace(".", "")
-        rv[i] = rv[i].upper()
+        rv[i] = rv[i].upper() 
+    nomes = formata_nomes(nomes,ano,mes)
     return nomes, rv
 
 
+def formata_nomes(nomes, ano, mes):
+    if mes<10: mes = '0'+str(mes)
+    prefixo = str(ano)+str(mes)+"-prevs-"
+    for i in range(len(nomes)):
+        nomes[i] = nomes[i].replace(prefixo, "")
+        nomes[i] = nomes[i].replace(str(ano)+"-","")
+        nomes[i] = nomes[i].replace("Diaria-","")
+        nomes[i] = nomes[i].replace("INAR","")
+        nomes[i] = nomes[i].replace("+", "")
+    return nomes
+    
