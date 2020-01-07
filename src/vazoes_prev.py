@@ -37,7 +37,7 @@ def regressao_tipo_1(prev, a0, a1, postos, mes):
     vazoes_base = vazoes_base.join(postos.query('tipo == 1'), on = 'posto', how = 'inner') # join para filtrar somente os postos tipo 1
     vazoes_base.drop(['nome','tipo','sub_mer','bacia','ree'], axis=1, inplace = True) #Remove as colunas desnecessárias
     ind = vazoes_base.head(200).index #Salva os números de postos presentes nas vazões de tipo 1
-    col = vazoes_base.T.head(200).index # Salva os estagios do prev
+    col = vazoes_base.T.head(6).index # Salva os estagios do prev
     vazoes_tipo1 = pd.DataFrame(0,index = ind, columns = col) #Cria um df preenchido com 0 identificados por postos e dias
     for i in range(6): #Itera os estagios do prev
         A0 = a0.loc[:,str(mes)] #Armazena todos os A0 do mês operativo atual de todos os postos tipo 1
@@ -66,6 +66,9 @@ def regressao_tipo_3(mes):
 def vazoes_finais(mes, ano):
     prevs, a0, a1, postos = imp.arquivos(ano, mes) #Recebe os postos, vazões e coeficientes de regressão tipo 1
     vazoes = [None] * len(prevs) #Cria vetor de vazões tratadas e regredidas para cada prev
+    col = imp.get_datas(ano, mes)
+    col.pop(0)
+    col.pop(0)
     for i, prev in enumerate(prevs):
         tipo0 = vazoes_tipo0(prev, postos) #Recebe as vazões dos postos tipo 0
         tipo1 = regressao_tipo_1(prev, a0, a1, postos, mes) #Recebe as vazoes dos postos tipo 1
@@ -76,7 +79,9 @@ def vazoes_finais(mes, ano):
         local = Path('saídas/vazoes/vazões_para_tipo3.csv') #Cria o diretório para a tabela calculada
         vazoes[i].to_csv(local) #Função que exporta para referência nas regressões de tipo 3
         tipo3 = regressao_tipo_3(mes) #Recebe uma tabela com todas as vazões de postos tipo 3
-        vazoes[i] = pd.concat([vazoes[i], tipo3], sort=True) #Adiciona os postos à tabela
+        vazoes[i].columns = col
+        tipo3.columns = col
+        vazoes[i] = pd.concat([vazoes[i], tipo3], axis=0) #Adiciona os postos à tabela
         vazoes[i].sort_index(inplace = True) #Organiza a tabela por ordem crescente de código de posto
     return vazoes
 

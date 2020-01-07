@@ -8,20 +8,20 @@ Created on Mon Dec 16 12:39:59 2019
 
 import pandas as pd
 import datetime as dt
+import calendar as cl
 from pathlib import Path
 
 
 def get_datas(ano,mes):
     datas = [] #Vetor que armazenará as datas dos primeiros dias de todas as semanas operativas do prev
-    data_str = str(ano)+'-'+str(mes)+'-'+'01' #cria uma data_str para ser usada de referência para o começo do mês operativo
-    data = dt.datetime.strptime(data_str, '%Y-%m-%d') #Converte a string em um objeto datetime
-    no_semana = data.isoweekday() % 7 #Pega o dia da semana e o transofrma em inteiro pela operação mod
-    if no_semana != 1:
-        inicio = data - dt.timedelta(days = no_semana + 1) # Define o início da semana operativa pegando o sábado que aconteceu antes do primeiro dia do mês
-    else:
-        inicio = data
-    for i in range(6): #Itera os seis estágios do prevs
-        datas.append(inicio + dt.timedelta(weeks = int(i))) #Adiciona em ordem crescente as datas no vetor
+    calendario_obj = cl.Calendar(firstweekday=5)
+    cal_mes = calendario_obj.monthdatescalendar(ano, mes)
+    for semana in cal_mes:
+        datas.append(semana[0])
+    if len(datas)<6:
+        for i in range(6 - len(datas)):
+            datas.append(datas[len(datas)-1] + dt.timedelta(weeks = i+1))
+    
     datas = ['indice', 'posto'] + datas #Adiciona elementos auxiliares para a criação do DF
     return datas
 
