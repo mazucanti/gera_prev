@@ -28,11 +28,12 @@ except:
 else:
     for i in range(len(ena_submercado)):
         ena_submercado[i].sort_index(ascending = False, inplace = True)
+        
     nomes, rv = imp.get_nomes(ano, mes)
+    mlt = imp.importa_mlt(mes, ano)
     dias, total = ena.dias_semana(ano, mes)
     medias, enas = ena.media_mes(dias, total, ena_submercado, ena_ree, ena_bacias)
-    ena.exporta_ena(ano, mes, nomes, rv, medias, enas)
+    ena.exporta_ena(ano, mes, nomes, rv, medias, mlt, enas)
 
     print('ENA calculada com sucesso!')
-
 
