@@ -58,24 +58,7 @@ def calc_ena(mes, ano):
     return ena
 
 
-# %%
 
-    
-#Exporta o df para um arquivo xls
-def exporta_ena(ano,mes, nomes, rv, medias, enas):
-    if mes<10: mes = '0' + str(mes)
-    local = Path('saídas/ENA/'+str(ano)+str(mes)+'-ENA.xls') #Cria o caminho para o arquivo a ser exportado
-    formato = [1,7,21] #Números das linhas apropriadas para a escrita na tabela do excel
-    with pd.ExcelWriter(local) as writer: #Cria o objeto que escreve os DF no arquivo
-        for i, ena in enumerate(enas): #Itera as enas entradas como parâmetro
-            for j, item in enumerate(ena):
-                item.to_excel(writer, sheet_name = nomes[j], startrow = formato[i], startcol = 0)
-                medias[j+len(ena)*i].to_excel(writer, sheet_name = nomes[j], startrow = formato[i], startcol = 8)
-                worksheet = writer.sheets[nomes[j]]
-                worksheet.write(0, 0, rv[j])
-    
-    
-    
 # %%
 
 
@@ -126,7 +109,7 @@ def media_mes(dias, total, *enas):
             for i, no_dias in enumerate(dias): #Itera o vetor de dias operativos
                 num_poderada += ena.iloc[:,i] * no_dias #Multiplica todas as enas pelo número de dias do mês operativo no estágio
             ponderadas.append(num_poderada / total) #Divide a soma dos produtos pelo total de dias do mês operativo
-            ponderadas[j].name = "Média"
+            ponderadas[j].name = "Média" #Renomeia cada série para ser identificado como média posteriormente
             j += 1
     return ponderadas, enas
 
@@ -145,3 +128,33 @@ def dias_semana(ano,mes):
         total += contador #O total é atualizado
     return dias_por_semana, total 
 
+
+
+def porcen_mlt(medias, mlt, no_arq):
+    for i, media in enumerate(medias):
+        ind = i // no_arq
+        porc_mlt = media / mlt[ind]['MLT']
+        porc_mlt *= 100
+        porc_mlt.name = '% MLT'
+        medias[i] = pd.concat([media, mlt[ind]['MLT'], porc_mlt], axis = 1)
+    return medias
+
+# %%
+
+    
+#Exporta o df para um arquivo xls
+def exporta_ena(ano,mes, nomes, rv, medias, mlt, enas):
+    if mes<10: mes = '0' + str(mes)
+    medias = porcen_mlt(medias, mlt, len(enas[0]))
+    local = Path('saídas/ENA/'+str(ano)+str(mes)+'-ENA.xls') #Cria o caminho para o arquivo a ser exportado
+    formato = [1,7,21] #Números das linhas apropriadas para a escrita na tabela do excel
+    with pd.ExcelWriter(local) as writer: #Cria o objeto que escreve os DF no arquivo
+        for i, ena in enumerate(enas): #Itera os conjuntos de ena entrados como parâmetro
+            for j, item in enumerate(ena): #itera cada item de ena dentro dos conjuntos
+                item.to_excel(writer, sheet_name = nomes[j]+rv[j], startrow = formato[i], startcol = 0)
+                medias[j+len(ena)*i].to_excel(writer, sheet_name = nomes[j]+rv[j], startrow = formato[i], startcol = 8)
+                worksheet = writer.sheets[nomes[j]+rv[j]]
+                worksheet.write(0, 0, rv[j])
+    
+    
+    

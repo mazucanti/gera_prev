@@ -26,7 +26,7 @@ def get_datas(ano,mes):
     return datas
 
 def importa_prevs(ano, mes):
-    arquivos = Path('entradas/prevs/'+str(ano)+'/'+str(mes)).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
+    arquivos = Path('entradas/prevs/%s/%s' % (str(ano), str(mes))).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
     prevs = [] #Vetor que armazenará todos os prevs de uma pasta
     datas = get_datas(ano,mes)
     files = [arquivo for arquivo in arquivos if arquivo.is_file()] #Organiza os arquivos válidos em um vetor
@@ -62,7 +62,7 @@ def arquivos(ano, mes):
 def get_nomes(ano,mes):
     nomes = []
     rv = []
-    arquivos = Path('entradas/prevs/'+str(ano)+'/'+str(mes)).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
+    arquivos = Path('entradas/prevs/%s/%s' % (str(ano), str(mes))).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
     files = [arquivo for arquivo in arquivos if arquivo.is_file()] #Organiza os arquivos válidos em um vetor
     for i, file in enumerate(files):
         nomes.append(file.stem)
@@ -73,8 +73,31 @@ def get_nomes(ano,mes):
     return nomes, rv
 
 
+def importa_mlt(mes, ano):
+    postos = importa_postos()
+    bacia = postos['bacia']
+    ree = postos['ree']
+    sub_mer = postos['sub_mer']
+    nomes = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
+    local = Path('entradas/mlt/GeraPrevs.xlsm')
+    mlt = pd.read_excel(local, sheet_name= 'MLT', header = 0, index_col = 0)
+    mlt = mlt.iloc[:,17:29]
+    mlt.columns = nomes
+    mlt = mlt.loc[:,nomes[mes-1]]
+    mlt.name = 'MLT'
+    bacia = pd.concat([mlt,bacia], axis=1)
+    bacia = bacia.groupby('bacia').sum()
+    ree = pd.concat([mlt,ree], axis=1)
+    ree = ree.groupby('ree').sum()
+    sub_mer = pd.concat([mlt,sub_mer], axis=1)
+    sub_mer = sub_mer.groupby('sub_mer').sum()
+    sub_mer.sort_index(ascending = False, inplace = True)
+    mlt = [sub_mer,ree,bacia]
+    return mlt
+    
+
 def formata_nomes(nomes, ano, mes):
-    if mes<10: mes = '0'+str(mes)
+    if mes < 10: mes = '0' + str(mes)
     prefixo = str(ano)+str(mes)+"-prevs-"
     for i in range(len(nomes)):
         nomes[i] = nomes[i].replace(prefixo, "")
