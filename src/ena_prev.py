@@ -144,17 +144,31 @@ def porcen_mlt(medias, mlt, no_arq):
     
 #Exporta o df para um arquivo xls
 def exporta_ena(ano,mes, nomes, rv, medias, mlt, enas):
+    
+    sumario = [] #Resumo das % da MLT ordenados de mais barato para mais caro indicando o nome da aba
+
     if mes<10: mes = '0' + str(mes)
     medias = porcen_mlt(medias, mlt, len(enas[0]))
-    local = Path('saídas/ENA/'+str(ano)+str(mes)+'-ENA.xls') #Cria o caminho para o arquivo a ser exportado
+    local = Path('saídas/ENA/%s%s-ENA.xls' % (ano,mes)) #Cria o caminho para o arquivo a ser exportado
     formato = [1,7,21] #Números das linhas apropriadas para a escrita na tabela do excel
     with pd.ExcelWriter(local) as writer: #Cria o objeto que escreve os DF no arquivo
         for i, ena in enumerate(enas): #Itera os conjuntos de ena entrados como parâmetro
             for j, item in enumerate(ena): #itera cada item de ena dentro dos conjuntos
-                item.to_excel(writer, sheet_name = nomes[j]+rv[j], startrow = formato[i], startcol = 0)
-                medias[j+len(ena)*i].to_excel(writer, sheet_name = nomes[j]+rv[j], startrow = formato[i], startcol = 8)
-                worksheet = writer.sheets[nomes[j]+rv[j]]
+                item.to_excel(writer, sheet_name = "prev-%d" % j, startrow = formato[i], startcol = 0)
+                medias[j+len(ena)*i].to_excel(writer, sheet_name = "prev-%d" % j, startrow = formato[i], startcol = 8)
+                worksheet = writer.sheets["prev-%d" % j]
                 worksheet.write(0, 0, rv[j])
-    
-    
-    
+                worksheet.write(0, 1, nomes[j])
+    for i in range(len(enas[0])):
+        se = round(medias[i].iloc[0,2], 0)
+        s = round(medias[i].iloc[1,2], 0)
+        ne = round(medias[i].iloc[2,2], 0)
+        n = round(medias[i].iloc[3,2], 0)
+        item = (se, s, ne, n, nomes[i], rv[i], "prev-%d" % i)
+        sumario.append(item)
+    sumario = sorted(sumario, reverse = True)
+    local = Path('saídas/ENA/sumario%s%s.txt' % (ano, mes))
+    with open(local, 'w') as fp:
+        for item in sumario:
+            fp.write("%s (%s - %s): %d_%d_%d_%d\n" % (item[6], item[4], item[5], item[0], item[1], item[2], item[3]))
+        

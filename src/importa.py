@@ -26,7 +26,7 @@ def get_datas(ano,mes):
     return datas
 
 def importa_prevs(ano, mes):
-    arquivos = Path('entradas/prevs/%s/%s' % (str(ano), str(mes))).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
+    arquivos = Path('entradas/prevs/%d/%d' % (ano, mes)).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
     prevs = [] #Vetor que armazenará todos os prevs de uma pasta
     datas = get_datas(ano,mes)
     files = [arquivo for arquivo in arquivos if arquivo.is_file()] #Organiza os arquivos válidos em um vetor
@@ -62,14 +62,13 @@ def arquivos(ano, mes):
 def get_nomes(ano,mes):
     nomes = []
     rv = []
-    arquivos = Path('entradas/prevs/%s/%s' % (str(ano), str(mes))).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
+    arquivos = Path('entradas/prevs/%d/%d' % (ano, mes)).glob('**/*') # Cria o caminho para todos os prevs de um mês e ano específico
     files = [arquivo for arquivo in arquivos if arquivo.is_file()] #Organiza os arquivos válidos em um vetor
     for i, file in enumerate(files):
         nomes.append(file.stem)
         rv.append(file.suffix)
         rv[i] = rv[i].replace(".", "")
         rv[i] = rv[i].upper() 
-    nomes = formata_nomes(nomes,ano,mes)
     return nomes, rv
 
 
@@ -96,14 +95,5 @@ def importa_mlt(mes, ano):
     return mlt
     
 
-def formata_nomes(nomes, ano, mes):
-    if mes < 10: mes = '0' + str(mes)
-    prefixo = str(ano)+str(mes)+"-prevs-"
-    for i in range(len(nomes)):
-        nomes[i] = nomes[i].replace(prefixo, "")
-        nomes[i] = nomes[i].replace(str(ano)+"-","")
-        nomes[i] = nomes[i].replace("Diaria-","")
-        nomes[i] = nomes[i].replace("INAR","")
-        nomes[i] = nomes[i].replace("+", "")
-    return nomes
+
     
