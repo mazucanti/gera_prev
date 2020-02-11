@@ -170,5 +170,6 @@ def exporta_ena(ano,mes, nomes, rv, medias, mlt, enas):
     local = Path('saídas/ENA/sumario%s%s.txt' % (ano, mes))
     with open(local, 'w') as fp:
         for item in sumario:
-            fp.write("%s (%s - %s): %d_%d_%d_%d\n" % (item[6], item[4], item[5], item[0], item[1], item[2], item[3]))
+            texto = "%s (%s - %s): %d_%d_%d_%d\n" % (item[6], item[4], item[5], item[0], item[1], item[2], item[3])
+            fp.write(texto)
         
