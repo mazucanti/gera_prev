@@ -51,7 +51,7 @@ def regressao_tipo_1(prev, a0, a1, postos, mes):
 #A função cria um dicionário com todas as vazões de tipo 3 e as organiza em uma tabela
 def regressao_tipo_3(mes):
     data_postos_tipo3 = {126: prev_tipo3.posto_126(), 127: prev_tipo3.posto_127(), 131: prev_tipo3.posto_131(), 132: prev_tipo3.posto_132(),
-                         176: prev_tipo3.posto_176(), 285: prev_tipo3.posto_285(), 292: prev_tipo3.posto_292(mes), 298: prev_tipo3.posto_298(), 
+                         176: prev_tipo3.posto_176(), 292: prev_tipo3.posto_292(mes), 298: prev_tipo3.posto_298(), 
                          299: prev_tipo3.posto_299(), 302: prev_tipo3.posto_302(mes), 303: prev_tipo3.posto_303(), 304: prev_tipo3.posto_304(),
                          306: prev_tipo3.posto_306(), 315: prev_tipo3.posto_315(), 316: prev_tipo3.posto_316(), 317: prev_tipo3.posto_317(),
                          318: prev_tipo3.posto_318(), 37: prev_tipo3.posto_37(), 38: prev_tipo3.posto_38(), 39: prev_tipo3.posto_39(), 
